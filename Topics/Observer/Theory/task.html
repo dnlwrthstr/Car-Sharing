@@ -1,0 +1,121 @@
+<h2>Observer</h2>
+<div class="step-text">
+<h5 id="design-problem">Design problem</h5>
+<p>When you release new videos on YouTube, update your profile info on Facebook or share a photo on Instagram, all of this information is automatically sent to your subscribers and friends. It means that an observable state is changed and the observers are notified. If you subscribe to a mailing list, you will get a message about new goods and stocks from the observable domain. </p>
+<h5 id="observer">Observer</h5>
+<p>The<strong> observer pattern</strong> is related to behavioral patterns. It is used to define the publisher-subscriber dependencies and the subscription mechanism so that when one object changes its state, all its dependents are notified and updated automatically.</p>
+<p>The observer notifies all the interested parties about an event that has occurred or a change in its state. In many cases, the observer pattern is used to build low coupling – reducing the coherence of a class with its dependencies by destroying the connection of the initiator of some event with its handlers.</p>
+<p>The observer pattern has the following components :</p>
+<ul>
+<li>
+<p>Observable</p>
+</li>
+<li>
+<p>Concrete Observable</p>
+</li>
+<li>
+<p>Observer</p>
+</li>
+<li>
+<p>Concrete Observer</p>
+</li>
+</ul>
+<p style="text-align: center;"><picture><source media="(max-width: 480px)" srcset="https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/480x/-/format/webp/ 1x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/960x/-/format/webp/ 2x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/1440x/-/format/webp/ 3x" type="image/webp"/><source media="(max-width: 800px)" srcset="https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/800x/-/format/webp/ 1x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/1600x/-/format/webp/ 2x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/2400x/-/format/webp/ 3x" type="image/webp"/><source srcset="https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/1100x/-/format/webp/ 1x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/2200x/-/format/webp/ 2x,https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/-/stretch/off/-/resize/3000x/-/format/webp/ 3x" type="image/webp"/><img alt="The observer pattern" height="434" src="https://ucarecdn.com/dbed6e9b-4e98-44cd-b4ae-f055255bbd82/" width="733"/></picture></p>
+<p>These four components carry out different functions: </p>
+<ol>
+<li>
+<p>Observable subscribes observers, removes them, and notifies them about the changes;</p>
+</li>
+<li>
+<p>Concrete Observable implements Observable operations and describes some states;</p>
+</li>
+<li>
+<p>Observer subscribes to Observable and listens to its notification;</p>
+</li>
+<li>
+<p>Concrete Observer implements Observer interface and reacts on updating (Observable notification).</p>
+</li>
+</ol>
+<p>The observer pattern in JDK is available in <code class="language-java">java.util.Observer</code> and <code class="language-java">java.util.EventListener</code>.</p>
+<h5 id="practice-example">Practice example</h5>
+<p>YouTube is a good demonstration of the Observer pattern. We have a YouTube channel (Observable) and its subscribers (Observers). Every subscriber will be notified when a new video is released. </p>
+<p>The Observable interface describes the operation to add, remove and notify the observers:</p>
+<pre><code class="language-java">public interface Observable {
+    void addObserver(Observer observer);
+    void removeObserver(Observer observer);
+    void notifyObservers();
+}</code></pre>
+<p>YouTubeChannel is the concrete implementation of the Observable interface with a list of observers. Generic &lt;Observer&gt; provides low coupling between objects:</p>
+<pre><code class="language-java">public class YoutubeChannel implements Observable {
+    private ArrayList&lt;Observer&gt; observers = new ArrayList&lt;&gt;();
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    } 
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    public void releaseNewVideo(String video) {
+        System.out.println("Release new video : " + video);
+        notifyObservers();
+    }
+
+    @Override
+    public void notifyObservers() {
+        for(Observer observer: observers) {
+            observer.update();
+        }
+    }
+}</code></pre>
+<p>Observer interface updates action when Observable makes notifications to its observers:</p>
+<pre><code class="language-java">public interface Observer {
+    void update(); 
+}</code></pre>
+<p>Youtube Subscriber (Concrete Observer) will get a notification about a new video on the channel:</p>
+<pre><code class="language-java">public class YoutubeSubscriber implements Observer {
+
+    private Observable observable;
+    
+    public YoutubeSubscriber(Observable observable) {
+        this.observable = observable;
+    }
+
+    @Override
+    public void update() {
+        System.out.println("New video on channel!");
+    } 
+}
+</code></pre>
+<p>Here is a demo of the Observer pattern: </p>
+<pre><code class="language-java">public class Main {
+    public static void main(String[] args) {
+        YoutubeChannel youtubeChannel = new YoutubeChannel();
+        YoutubeSubscriber subscriberA = new YoutubeSubscriber(youtubeChannel);
+        YoutubeSubscriber subscriberB = new YoutubeSubscriber(youtubeChannel);
+        YoutubeSubscriber subscriberC = new YoutubeSubscriber(youtubeChannel);
+        youtubeChannel.addObserver(subscriberA);
+        youtubeChannel.addObserver(subscriberB);
+        youtubeChannel.addObserver(subscriberC);
+        youtubeChannel.releaseNewVideo("Design Patterns : Factory Method");
+        youtubeChannel.releaseNewVideo("Design Patterns : Proxy");
+        youtubeChannel.releaseNewVideo("Design Patterns : Visitor");
+    }
+}</code></pre>
+<h5 id="conclusion">Conclusion</h5>
+<p>The observer pattern is applicable in the following cases:</p>
+<ul>
+<li>
+<p>When changing one component influences other objects;</p>
+</li>
+<li>
+<p>When subscriber-publisher dependencies are present;</p>
+</li>
+<li>
+<p>When you need to have low coupling between the components.</p>
+</li>
+</ul>
+</div>
